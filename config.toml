@@ -1,0 +1,2 @@
+bad_words = ["fuck", "fck", "cock", "cck", "god", "jesus", "jeeesus", "jeesus", "booby", "bobby"]
+replacements = ["<:VivAngy:953143421915246702>",  "<:ThankYou:953823811499860058>", "<:gotcha:842666223871066122>", "<:foxsit:842296829344743474>", "<:foxhead:842297150746132481>", "<:foxdance:842297123332292628>", "<:Foxscared:842665201160683520>"]

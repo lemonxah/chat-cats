@@ -1,0 +1,15 @@
+[package]
+name = "chat-cats"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+discord = { git = "https://github.com/SpaceManiac/discord-rs" }
+dotenv = "0.15.0"
+regex = "1.7.1"
+toml = "0.7.2"
+serde = "1.0.152"
+serde_derive = "1.0.152"
+rand = "0.8.5"
