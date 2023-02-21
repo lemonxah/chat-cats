@@ -10,7 +10,7 @@ use std::env;
 use dotenv::dotenv;
 
 use crate::profanity::profanity_filter;
-use crate::commands::{Commands, LoveCommand};
+use crate::commands::{Commands, LoveCommand, SlapCommand};
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Config {
@@ -29,7 +29,8 @@ fn main() {
 	let (mut connection, _) = discord.connect().expect("connect failed");
     let mut commands = Commands::new();
     commands
-        .add_command(Box::new(LoveCommand::new()));
+        .add_command(Box::new(LoveCommand::new()))
+        .add_command(Box::new(SlapCommand::new()));
 
 	println!("Ready.");
 	loop {

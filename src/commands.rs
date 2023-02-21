@@ -1,5 +1,8 @@
 mod love;
+mod slap;
 pub use love::*;
+pub use slap::*;
+
 use discord::{model::Message, Discord, Result};
 use regex::Regex;
 
