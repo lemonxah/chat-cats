@@ -31,6 +31,9 @@ impl SlapCommand {
                 "attacks",
                 "backhands",
                 "shurikens",
+                "hadoukens",
+                "kamehamehas",
+                "FUS ROH DAHs",
             ],
             objects: vec![
                 "a wet noodle",
@@ -45,7 +48,6 @@ impl SlapCommand {
                 "a pink flamingo",
                 "a giganotosaurus",
                 "a raging pikachu",
-
             ],
             body_parts: vec![
                 "across the face",
@@ -69,20 +71,19 @@ impl SlapCommand {
                 "<@> starts a monolouge on how to exact revenge for this outrage",
                 "<@> releases the inner villain",
                 "<@> screams MORTAL COMBAT!",
-                
+                "<@> just gets obliterated",
             ]
         }
     }
     pub fn respond(&self, message: &Message, discord: &Discord) -> Result<Message> {
-        let rng = &mut rand::thread_rng();
         let oponent_regex = Regex::new("<@\\d+?>").unwrap();
         let oponent_match = oponent_regex.find(&message.content);
         if let Some(opm) = oponent_match {
             let oponent = &message.content[opm.start()..opm.end()];
-            let action = *self.actions.choose(rng).unwrap();
-            let object = *self.objects.choose(rng).unwrap();
-            let body_part = *self.body_parts.choose(rng).unwrap();
-            let result = *self.results.choose(rng).unwrap();
+            let action = *self.actions.choose(&mut rand::thread_rng()).unwrap();
+            let object = *self.objects.choose(&mut rand::thread_rng()).unwrap();
+            let body_part = *self.body_parts.choose(&mut rand::thread_rng()).unwrap();
+            let result = *self.results.choose(&mut rand::thread_rng()).unwrap();
             let result = result.replace("<@>", oponent);
             let response = format!("<@{}> {} {} with {} {} and {}", message.author.id, action, oponent, object, body_part, result);
             discord.send_message(message.channel_id, &response, "", false)
