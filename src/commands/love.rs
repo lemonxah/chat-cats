@@ -1,5 +1,5 @@
 use discord::{model::Message, Discord, Result};
-use rand::seq::SliceRandom;
+use rand::{seq::SliceRandom, rngs::ThreadRng};
 use crate::Config;
 
 use super::ChatCommand;
@@ -41,8 +41,8 @@ impl LoveCommand {
             ]
         }
     }
-    pub fn respond(&self, message: &Message, discord: &Discord) -> Result<Message> {
-        discord.send_message(message.channel_id, &format!("<@{}>, {}", message.author.id, self.responses.choose(&mut rand::thread_rng()).unwrap()), "", false)
+    pub fn respond(&self, message: &Message, discord: &Discord, rng: &mut ThreadRng) -> Result<Message> {
+        discord.send_message(message.channel_id, &format!("<@{}>, {}", message.author.id, self.responses.choose(rng).unwrap()), "", false)
     }
 }
 
@@ -51,7 +51,7 @@ impl ChatCommand for LoveCommand {
         self.matches.iter().any(|m| message == *m)
     }
 
-    fn handle(&self, message: &Message, discord: &Discord, _config: &Config) -> Result<Message> {
-        self.respond(message, discord)
+    fn handle(&self, message: &Message, discord: &Discord, _config: &Config, rng: &mut ThreadRng) -> Result<Message> {
+        self.respond(message, discord, rng)
     }
 }

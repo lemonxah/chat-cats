@@ -24,7 +24,7 @@ fn main() {
     let config: Config = toml::from_str(&config_str).expect("config.toml format broken");
     let token = env::var("DISCORD_TOKEN").expect("token expected");
     let discord = Discord::from_bot_token(&token).expect("login failed");
-
+    let rng = &mut rand::thread_rng();
 	// Establish and use a websocket connection
 	let (mut connection, _) = discord.connect().expect("connect failed");
     let mut commands = Commands::new();
@@ -38,7 +38,7 @@ fn main() {
 			Ok(Event::MessageCreate(message)) => {
 				println!("{} says: {}", message.author.name, message.content);
                 profanity_filter(&message, &config, &discord);
-                commands.handle(&message, &discord, &config);
+                commands.handle(&message, &discord, &config, rng);
 			}
 			Ok(_) => {}
 			Err(discord::Error::Closed(code, body)) => {

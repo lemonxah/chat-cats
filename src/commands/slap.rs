@@ -1,5 +1,5 @@
 use discord::{model::Message, Discord, Result};
-use rand::seq::SliceRandom;
+use rand::{seq::SliceRandom, rngs::ThreadRng};
 use regex::Regex;
 use crate::Config;
 
@@ -75,15 +75,15 @@ impl SlapCommand {
             ]
         }
     }
-    pub fn respond(&self, message: &Message, discord: &Discord) -> Result<Message> {
+    pub fn respond(&self, message: &Message, discord: &Discord, rng: &mut ThreadRng) -> Result<Message> {
         let oponent_regex = Regex::new("<@\\d+?>").unwrap();
         let oponent_match = oponent_regex.find(&message.content);
         if let Some(opm) = oponent_match {
             let oponent = &message.content[opm.start()..opm.end()];
-            let action = *self.actions.choose(&mut rand::thread_rng()).unwrap();
-            let object = *self.objects.choose(&mut rand::thread_rng()).unwrap();
-            let body_part = *self.body_parts.choose(&mut rand::thread_rng()).unwrap();
-            let result = *self.results.choose(&mut rand::thread_rng()).unwrap();
+            let action = *self.actions.choose(rng).unwrap();
+            let object = *self.objects.choose(rng).unwrap();
+            let body_part = *self.body_parts.choose(rng).unwrap();
+            let result = *self.results.choose(rng).unwrap();
             let result = result.replace("<@>", oponent);
             let response = format!("<@{}> {} {} with {} {} and {}", message.author.id, action, oponent, object, body_part, result);
             discord.send_message(message.channel_id, &response, "", false)
@@ -98,7 +98,7 @@ impl ChatCommand for SlapCommand {
         self.matches.iter().any(|m| message.starts_with(m))
     }
 
-    fn handle(&self, message: &Message, discord: &Discord, _config: &Config) -> Result<Message> {
-        self.respond(message, discord)
+    fn handle(&self, message: &Message, discord: &Discord, _config: &Config, rng: &mut ThreadRng) -> Result<Message> {
+        self.respond(message, discord, rng)
     }
 }
