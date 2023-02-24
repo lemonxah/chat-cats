@@ -1,9 +1,13 @@
-use discord::{model::Message, Discord, Result};
-use rand::{seq::SliceRandom, rngs::ThreadRng};
+use async_trait::async_trait;
+use discord::{model::Message, Discord};
+use macros::ChatCommand;
+use std::result::Result;
+use rand::seq::SliceRandom;
 use crate::Config;
+use mongodb::Database;
+use super::{ChatCommand, CommandError};
 
-use super::ChatCommand;
-
+#[derive(ChatCommand)]
 pub struct LoveCommand {
     matches: Vec<&'static str>,
     responses: Vec<&'static str>
@@ -41,17 +45,11 @@ impl LoveCommand {
             ]
         }
     }
-    pub fn respond(&self, message: &Message, discord: &Discord, rng: &mut ThreadRng) -> Result<Message> {
-        discord.send_message(message.channel_id, &format!("<@{}>, {}", message.author.id, self.responses.choose(rng).unwrap()), "", false)
-    }
-}
-
-impl ChatCommand for LoveCommand {
-    fn matches(&self, message: &str) -> bool {
-        self.matches.iter().any(|m| message == *m)
-    }
-
-    fn handle(&self, message: &Message, discord: &Discord, _config: &Config, rng: &mut ThreadRng) -> Result<Message> {
-        self.respond(message, discord, rng)
+    pub async fn respond(&self, message: &Message, discord: &Discord, _db: Database) -> Result<Message, CommandError> {
+        let response = {
+            let rng = &mut rand::thread_rng();
+            format!("<@{}>, {}", message.author.id, self.responses.choose(rng).unwrap())
+        };
+        discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
     }
 }

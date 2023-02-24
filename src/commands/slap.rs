@@ -1,10 +1,14 @@
-use discord::{model::Message, Discord, Result};
+use async_trait::async_trait;
+use discord::{model::Message, Discord};
+use macros::ChatCommand;
 use rand::{seq::SliceRandom, rngs::ThreadRng};
+use std::result::Result;
 use regex::Regex;
-use crate::Config;
+use crate::{Config, storage};
+use mongodb::Database;
+use super::{ChatCommand, CommandError};
 
-use super::ChatCommand;
-
+#[derive(ChatCommand)]
 pub struct SlapCommand {
     matches: Vec<&'static str>,
     actions: Vec<&'static str>,
@@ -75,30 +79,28 @@ impl SlapCommand {
             ]
         }
     }
-    pub fn respond(&self, message: &Message, discord: &Discord, rng: &mut ThreadRng) -> Result<Message> {
-        let oponent_regex = Regex::new("<@\\d+?>").unwrap();
+
+    pub async fn respond(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
+        let oponent_regex = Regex::new("<@\\(d+?)>").unwrap();
         let oponent_match = oponent_regex.find(&message.content);
         if let Some(opm) = oponent_match {
             let oponent = &message.content[opm.start()..opm.end()];
-            let action = *self.actions.choose(rng).unwrap();
-            let object = *self.objects.choose(rng).unwrap();
-            let body_part = *self.body_parts.choose(rng).unwrap();
-            let result = *self.results.choose(rng).unwrap();
-            let result = result.replace("<@>", oponent);
-            let response = format!("<@{}> {} {} with {} {} and {}", message.author.id, action, oponent, object, body_part, result);
-            discord.send_message(message.channel_id, &response, "", false)
+            let response = {
+                let mut rng: ThreadRng = rand::thread_rng();
+                let action = *self.actions.choose(&mut rng).unwrap();
+                let object = *self.objects.choose(&mut rng).unwrap();
+                let body_part = *self.body_parts.choose(&mut rng).unwrap();
+                let result = *self.results.choose(&mut rng).unwrap();
+                let result = result.replace("<@>", oponent);
+                format!("<@{}> {} {} with {} {} and {}", message.author.id, action, oponent, object, body_part, result)
+            };
+            if !response.ends_with("brushes it off like nothing") && !response.ends_with("it is not effective at all") {
+                // slap counts as valid and is recorded
+                let _slaps = storage::slaps::slap(message.author.id.0 as i64, oponent[2..oponent.len()-2].parse::<i64>().unwrap(), db).await?;
+            }
+            discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
         } else {
-            discord.send_message(message.channel_id, "You have to @ the person you want to slap", "", false)
+            discord.send_message(message.channel_id, "You have to @ the person you want to slap", "", false).map_err(|e| e.into())
         }
-    }
-}
-
-impl ChatCommand for SlapCommand {
-    fn matches(&self, message: &str) -> bool {
-        self.matches.iter().any(|m| message.starts_with(m))
-    }
-
-    fn handle(&self, message: &Message, discord: &Discord, _config: &Config, rng: &mut ThreadRng) -> Result<Message> {
-        self.respond(message, discord, rng)
     }
 }
