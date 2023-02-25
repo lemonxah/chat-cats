@@ -15,6 +15,6 @@ toml = "0.7.2"
 serde = "1.0.152"
 serde_derive = "1.0.152"
 rand = "0.8.5"
-mongodb = { verison = "2.3.1" }
+mongodb = { version = "2.3.1" }
 thiserror = "1.0.38"
 macros = { path = "macros" }
