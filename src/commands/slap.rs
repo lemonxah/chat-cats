@@ -81,7 +81,7 @@ impl SlapCommand {
     }
 
     pub async fn respond(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
-        let oponent_regex = Regex::new("<@\\(d+?)>").unwrap();
+        let oponent_regex = Regex::new("<@(\\d+?)>")?;
         let oponent_match = oponent_regex.find(&message.content);
         if let Some(opm) = oponent_match {
             let oponent = &message.content[opm.start()..opm.end()];
