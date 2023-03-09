@@ -1,6 +1,7 @@
 mod profanity;
 mod commands;
 mod storage;
+mod cache;
 
 extern crate discord;
 use discord::model::Event;

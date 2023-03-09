@@ -1,14 +1,15 @@
 use async_trait::async_trait;
-use discord::{model::{Message, UserId}, Discord};
+use discord::{model::{Message, UserId, Channel, ChannelId}, Discord};
 use macros::ChatCommand;
 use rand::{seq::SliceRandom, rngs::ThreadRng};
 use serde::{Deserialize, Serialize};
 use std::result::Result;
 use regex::Regex;
 use strum::{EnumIter, IntoEnumIterator};
-use crate::storage;
+use crate::{storage, cache::Cache};
 use mongodb::Database;
 use super::{ChatCommand, CommandError, Responder, HelpCommands};
+
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct SlapConfig {
@@ -22,6 +23,7 @@ pub struct SlapConfig {
 pub struct SlapCommand {
     matches: Vec<&'static str>,
     config: SlapConfig,
+    cache: Cache<i64, String, 20>,
 }
 
 type Oponent = String;
@@ -115,6 +117,18 @@ impl SlapCommand {
         discord.send_message(message.channel_id, &response.replace("!!!", ""), "", false).map_err(|e| e.into())
     }
 
+    pub async fn random(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
+        let messages = discord.get_messages(message.channel_id, discord::GetMessages::MostRecent, Some(30))?;
+        let mut users: Vec<UserId> = messages.iter().filter(|m| m.author.bot == false).map(|m| m.author.id).collect();
+        users.sort();
+        users.dedup();
+        let oponent = {
+            let mut rng: ThreadRng = rand::thread_rng();
+            format!("<@{}>", users.choose(&mut rng).unwrap())
+        };
+        self.slap(oponent, message, discord, db).await
+    }
+
     pub async fn help(&self, message: &Message, discord: &Discord) -> Result<Message, CommandError> {
         let response = format!("Usage: slap <oponent>");
         discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
@@ -128,18 +142,38 @@ impl SlapCommand {
         discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
     }
 
-    fn get_name(id: i64, discord: &Discord) -> Result<String, CommandError> {
-        let id = UserId(id as u64);
-        let user = discord.get_user(id)?;
-        Ok(user.name)
+    async fn get_name(&self, id: i64, channel_id: ChannelId, discord: &Discord) -> Result<String, CommandError> {
+        if let Some(name) = self.cache.get(id).await {
+            return Ok(name);
+        } else {
+            let id = UserId(id as u64);
+            if let Channel::Public(channel) = discord.get_channel(channel_id)? {
+                let user = discord.get_member(channel.server_id, id)?;
+                let display_name = user.display_name().to_owned();
+                self.cache.set(id.0 as i64, display_name.clone()).await;
+                Ok(display_name)
+            } else {
+                let user = discord.get_user(id)?;
+                self.cache.set(id.0 as i64, user.name.clone()).await;
+                Ok(user.name)
+            }
+        }
     }
 
     pub async fn leaderboard(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
         let slappers = storage::slaps::top3_slappers(db.clone()).await?;
         let slappees = storage::slaps::top3_slappees(db).await?;
+        let mut slapper_names: Vec<(String, i32)> = vec![];
+        for slapper in slappers.into_iter() {
+            slapper_names.push((self.get_name(slapper.author, message.channel_id, discord).await.unwrap_or(String::from("unknown")), slapper.count));
+        }
+        let mut slappees_names: Vec<(String, i32)> = vec![];
+        for slappee in slappees.into_iter() {
+            slappees_names.push((self.get_name(slappee.author, message.channel_id, discord).await.unwrap_or(String::from("unknown")), slappee.count));
+        }
         let response = format!("```Top 3 Slappers:\n\n{} \n\nTop 3 Slapped:\n\n{}\n\n```",
-            slappers.iter().map(|s| format!("  {} with {} slaps", Self::get_name(s.author, discord).unwrap_or("unknown".to_owned()), s.count)).collect::<Vec<String>>().join("\n"),
-            slappees.iter().map(|s| format!("  {} with {} slaps", Self::get_name(s.author, discord).unwrap_or("unknown".to_owned()), s.count)).collect::<Vec<String>>().join("\n")
+            slapper_names.iter().map(|s| format!("  {} with {} slaps", s.0, s.1)).collect::<Vec<String>>().join("\n"),
+            slappees_names.iter().map(|s| format!("  {} with {} slaps", s.0, s.1)).collect::<Vec<String>>().join("\n")
         );
         discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
     }
@@ -151,19 +185,21 @@ impl Responder for SlapCommand {
     type Config = SlapConfig;
     fn new(config: SlapConfig) -> SlapCommand {
         SlapCommand { 
+            cache: Cache::new(),
             matches: SubCommand::iter().map(|s| s.into()).collect(),
             config,
         }
     }
 
     async fn respond(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
-        match SubCommand::from(message) {
+        let result = match SubCommand::from(message) {
             SubCommand::Slap(oponent) => self.slap(oponent, message, discord, db).await,
             SubCommand::Help => self.help(message, discord).await,
             SubCommand::Stats => self.stats(message, discord, db).await,
             SubCommand::Leaderboard =>self.leaderboard(message, discord, db).await,
             SubCommand::Top => self.leaderboard(message, discord, db).await,
-            SubCommand::Random => todo!(),
-        }
+            SubCommand::Random => self.random(message, discord, db).await,
+        };
+        result
     }
 }
