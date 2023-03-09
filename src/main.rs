@@ -19,6 +19,12 @@ pub struct Config {
     pub profanity: profanity::ProfanityConfig,
 	pub slap: commands::SlapConfig,
 	pub love: commands::LoveConfig,
+	pub db: DBConfig,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct DBConfig {
+	pub connection_string: String,
 }
 
 #[tokio::main]
@@ -30,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let token = env::var("DISCORD_TOKEN").expect("token expected");
     let discord = Discord::from_bot_token(&token).expect("login failed");
 	println!("Login successful");
-	let mut client_options = ClientOptions::parse("mongodb://10.2.1.27:27017").await?;
+	let mut client_options = ClientOptions::parse(config.db.connection_string).await?;
 	client_options.app_name = Some("Chat Cats".to_string());
 	let client = Client::with_options(client_options)?;
 	let db = client.database("chat-cats");

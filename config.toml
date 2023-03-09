@@ -1,3 +1,6 @@
+[db]
+connection_string = "mongodb://10.2.1.27:27017"
+
 [profanity]
 bad_words = [
     "fuck",
