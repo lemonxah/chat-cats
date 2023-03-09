@@ -192,14 +192,13 @@ impl Responder for SlapCommand {
     }
 
     async fn respond(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
-        let result = match SubCommand::from(message) {
+        match SubCommand::from(message) {
             SubCommand::Slap(oponent) => self.slap(oponent, message, discord, db).await,
             SubCommand::Help => self.help(message, discord).await,
             SubCommand::Stats => self.stats(message, discord, db).await,
             SubCommand::Leaderboard =>self.leaderboard(message, discord, db).await,
             SubCommand::Top => self.leaderboard(message, discord, db).await,
             SubCommand::Random => self.random(message, discord, db).await,
-        };
-        result
+        }
     }
 }
