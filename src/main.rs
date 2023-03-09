@@ -18,7 +18,6 @@ pub struct Config {
     pub profanity: profanity::ProfanityConfig,
 	pub slap: commands::SlapConfig,
 	pub love: commands::LoveConfig,
-	pub help: commands::HelpConfig,
 }
 
 #[tokio::main]
@@ -39,7 +38,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut commands = Commands::new();
     commands
         .add_command(Box::new(LoveCommand::new(config.love)))
-		.add_command(Box::new(HelpCommand::new(config.help)))
         .add_command(Box::new(SlapCommand::new(config.slap)))
 		.add_command(Box::new(StatsCommand::new(())));
 

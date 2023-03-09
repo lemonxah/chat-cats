@@ -8,7 +8,10 @@ pub fn derive_chat_command(input: TokenStream) -> TokenStream {
     let name = &input.ident;
     let gen = quote! {
         #[async_trait]
-        impl ChatCommand for #name where #name : crate::commands::Responder {
+        impl ChatCommand for #name where #name : crate::commands::Responder + crate::commands::HelpCommands {
+            fn help(&self) -> Vec<&'static str> {
+                <#name as crate::commands::HelpCommands>::help()
+            }
             fn matches(&self, message: &str) -> bool {
                 self.matches.iter().any(|m| message.starts_with(*m))
             }

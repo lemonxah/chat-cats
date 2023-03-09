@@ -5,7 +5,7 @@ use serde::Deserialize;
 use std::result::Result;
 use rand::seq::SliceRandom;
 use mongodb::Database;
-use super::{ChatCommand, CommandError, Responder};
+use super::{ChatCommand, CommandError, Responder, HelpCommands};
 
 
 #[derive(Deserialize, Debug, Clone)]
@@ -17,6 +17,16 @@ pub struct LoveConfig {
 pub struct LoveCommand {
     matches: Vec<&'static str>,
     config: LoveConfig,
+}
+
+impl HelpCommands for LoveCommand {
+    fn help() -> Vec<&'static str> {
+        vec![
+            "   love you - Responds with a random love message",
+            "       Example: cc love you",
+            "       Example: cc ❤️",
+        ]
+    }
 }
 
 #[async_trait]

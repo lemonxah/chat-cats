@@ -8,7 +8,7 @@ use regex::Regex;
 use strum::{EnumIter, IntoEnumIterator};
 use crate::storage;
 use mongodb::Database;
-use super::{ChatCommand, CommandError, Responder};
+use super::{ChatCommand, CommandError, Responder, HelpCommands};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct SlapConfig {
@@ -52,6 +52,23 @@ impl Into<&'static str> for SubCommand {
             SubCommand::Random => "slap random",
             SubCommand::Slap(_) => "slap",
         }
+    }
+}
+
+impl HelpCommands for SlapCommand {
+    fn help() -> Vec<&'static str> {
+        vec![
+            "   slap help - Responds with a list of slap commands",
+            "       Example: cc slap help",
+            "   slap stats - Responds with stats about your slaps",
+            "   slap leaderboard - Responds with the slap leaderboard",
+            "       Example: cc slap leaderboard",
+            "       Example: cc slap top",
+            "   slap random - Responds with a random slap message aimed at a random online user",
+            "       Example: cc slap random",
+            "   slap @target - Responds with a random slap message aimed at the @target user",
+            "       Example: cc slap @ChatCats",        
+        ]
     }
 }
 

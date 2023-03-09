@@ -1,21 +1,28 @@
-[help]
-response = [
-    "```",
-    "I can do a lot of things! Here's a list of commands I can respond to:",
-    "   love you - Responds with a random love message",
-    "       Example: cc love you",
-    "   slap @target - Responds with a random slap message aimed at the @target user",
-    "       Example: cc slap @ChatCats",
-    "       Example: cc please slap @ChatCats",
-    "   slaps - Shows the User's effective slaps on @targets",
-    "   stats - Responds with some stats about the bot and the chatters",
-    "   help - Responds with this message",
-    "```",
+[profanity]
+bad_words = [
+    "fuck",
+    "fck",
+    "cock",
+    "cck",
+    "god",
+    "jesus",
+    "jeeesus",
+    "jeesus",
+    "vok",
+    "fok",
+    "poes",
+    "bliksem",
 ]
 
-[profanity]
-bad_words = ["fuck", "fck", "cock", "cck", "god", "jesus", "jeeesus", "jeesus", "vok", "poes", "bliksem"]
-replacements = ["<:VivAngy:953143421915246702>",  "<:ThankYou:953823811499860058>", "<:gotcha:842666223871066122>", "<:foxsit:842296829344743474>", "<:foxhead:842297150746132481>", "<:foxdance:842297123332292628>", "<:Foxscared:842665201160683520>"]
+replacements = [
+    "<:VivAngy:953143421915246702>",
+    "<:ThankYou:953823811499860058>",
+    "<:gotcha:842666223871066122>",
+    "<:foxsit:842296829344743474>",
+    "<:foxhead:842297150746132481>",
+    "<:foxdance:842297123332292628>",
+    "<:Foxscared:842665201160683520>",
+]
 
 [love]
 responses = [
@@ -58,6 +65,7 @@ actions = [
     "kamehamehas",
     "FUS ROH DAHs",
 ]
+
 objects = [
     "a wet noodle",
     "a smelly fish",
@@ -72,6 +80,7 @@ objects = [
     "a giganotosaurus",
     "a raging pikachu",
 ]
+
 body_parts = [
     "across the face",
     "on the hand",
@@ -90,7 +99,7 @@ results = [
     "<@> stumbles",
     "<@> faints",
     "<@> runs around screaming about bottled water",
-    "!!!<@> sneezes",
+    "<@> sneezes",
     "!!!<@> laughs",
     "<@> starts a monolouge on how to exact revenge for this outrage",
     "<@> releases the inner villain",

@@ -1,10 +1,8 @@
 mod love;
 mod slap;
-mod help;
 mod stats;
 pub use love::*;
 pub use slap::*;
-pub use help::*;
 pub use stats::*;
 
 use thiserror::Error;
@@ -26,6 +24,10 @@ pub enum CommandError {
     CastError(#[from] std::num::ParseIntError),
 }
 
+pub trait HelpCommands {
+    fn help() -> Vec<&'static str>;
+}
+
 #[async_trait]
 pub trait Responder {
     type Config;
@@ -35,6 +37,7 @@ pub trait Responder {
 
 #[async_trait]
 pub trait ChatCommand {
+    fn help(&self) -> Vec<&'static str>;
     fn matches(&self, message: &str) -> bool;
     async fn handle(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError>;
 }
@@ -59,6 +62,17 @@ impl Commands {
         let is_command = Regex::new(&re_string).unwrap();
         if is_command.is_match(&message.content) {
             let stripped = is_command.replacen(&message.content, 1, "").to_string();
+            let help = Regex::new(r"(?i)^(help|commands|what can you do)$").unwrap();
+            if help.is_match(&stripped.trim()) {
+                let pc = discord.create_private_channel(message.author.id)?;
+                let mut help = vec!["```", "I can do the following commands:", "   help - Responds with this message"];
+                for command in &self.commands {
+                    help.append(&mut command.help());
+                }
+                help.push("```");
+                let _ = discord.send_message(pc.id, &help.join("\n"), "", false);
+                return Ok(());
+            }
             for command in &self.commands {
                 if command.matches(stripped.trim()) {
                     command.handle(message, discord, db.clone()).await?;
