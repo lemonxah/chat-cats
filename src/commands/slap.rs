@@ -196,7 +196,7 @@ impl Responder for SlapCommand {
             SubCommand::Slap(oponent) => self.slap(oponent, message, discord, db).await,
             SubCommand::Help => self.help(message, discord).await,
             SubCommand::Stats => self.stats(message, discord, db).await,
-            SubCommand::Leaderboard =>self.leaderboard(message, discord, db).await,
+            SubCommand::Leaderboard => self.leaderboard(message, discord, db).await,
             SubCommand::Top => self.leaderboard(message, discord, db).await,
             SubCommand::Random => self.random(message, discord, db).await,
         }
