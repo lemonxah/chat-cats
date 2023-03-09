@@ -2,10 +2,15 @@ use rand::{thread_rng, Rng};
 use regex::Regex;
 use discord::model::Message;
 use discord::Discord;
+use serde::Deserialize;
 
-use crate::Config;
+#[derive(Debug, Deserialize, Clone)]
+pub struct ProfanityConfig {
+    pub bad_words: Vec<String>,
+    pub replacements: Vec<String>,
+}
 
-pub fn profanity_filter(message: &Message, config: &Config, discord: &Discord) {
+pub fn profanity_filter(message: &Message, config: &ProfanityConfig, discord: &Discord) {
     let mut rng = thread_rng();
     let n = rng.gen_range(0..config.replacements.len()-1);
     let re_string = format!("(?i)({})", config.bad_words.join("|"));

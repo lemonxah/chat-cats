@@ -2,17 +2,18 @@ use async_trait::async_trait;
 use macros::ChatCommand;
 use std::result::Result;
 use discord::{model::Message, Discord};
-use crate::Config;
 use mongodb::Database;
-use super::{ChatCommand, CommandError};
+use super::{ChatCommand, CommandError, Responder};
 
 #[derive(ChatCommand)]
 pub struct StatsCommand {
     matches: Vec<&'static str>,
 }
 
-impl StatsCommand {
-    pub fn new() -> StatsCommand {
+#[async_trait]
+impl Responder for StatsCommand {
+    type Config = ();
+    fn new(_config: ()) -> StatsCommand {
         StatsCommand { 
             matches: vec![
                 "stats",
@@ -20,9 +21,7 @@ impl StatsCommand {
             ], 
         }
     }
-    pub async fn respond(&self, message: &Message, _cardiscord: &Discord, _db: Database) -> Result<Message, CommandError> {
-        // let pc = discord.create_dm(message.author.id).unwrap();
-        // discord.send_message(pc.id, &self.response.join("\n"), "", false).map_err(|e| e.into())
+    async fn respond(&self, message: &Message, _cardiscord: &Discord, _db: Database) -> Result<Message, CommandError> {
         Ok(message.clone())
     }
 }
