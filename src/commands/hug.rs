@@ -46,7 +46,7 @@ impl Responder for HugCommand {
         if let Some(oponent_match) = oponent_regex.find(&oponent_test) {
             let response = {
                 let rng = &mut rand::thread_rng();
-                format!("<@{}> gives {} a {}", message.author.id, oponent_test[oponent_match.start()..oponent_match.end()].to_string(), self.config.responses.choose(rng).unwrap())
+                format!("<@{}> gives {} {}", message.author.id, oponent_test[oponent_match.start()..oponent_match.end()].to_string(), self.config.responses.choose(rng).unwrap())
             };
             discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
         } else {
