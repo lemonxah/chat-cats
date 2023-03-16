@@ -19,6 +19,7 @@ pub struct Config {
     pub profanity: profanity::ProfanityConfig,
     pub slap: commands::SlapConfig,
     pub love: commands::LoveConfig,
+    pub hug: commands::HugConfig,
     pub db: DBConfig,
 }
 
@@ -46,6 +47,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     commands
         .add_command(Box::new(LoveCommand::new(config.love)))
         .add_command(Box::new(SlapCommand::new(config.slap)))
+        .add_command(Box::new(HugCommand::new(config.hug)))
         .add_command(Box::new(StatsCommand::new(())));
 
     println!("Ready.");

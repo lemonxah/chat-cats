@@ -1,9 +1,11 @@
 mod love;
 mod slap;
 mod stats;
+mod hug;
 pub use love::*;
 pub use slap::*;
 pub use stats::*;
+pub use hug::*;
 
 use thiserror::Error;
 use std::result::Result;

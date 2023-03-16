@@ -27,6 +27,16 @@ replacements = [
     "<:Foxscared:842665201160683520>",
 ]
 
+[hug]
+responses = [
+    "heartfelt hug",
+    "flops on the floor and rolls around hug",
+    "snuggy huggy",
+    "tight hug and lick on the cheak",
+    "hug so tight they faint",
+    "hug and a mug of steaming hot choco",
+]
+
 [love]
 responses = [
     "i love you too!! ❤️❤️❤️",
