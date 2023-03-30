@@ -3,6 +3,20 @@ connection_string = "mongodb://10.2.1.27:27017"
 
 [remind]
 [time]
+[uwu]
+responses = [
+    "uwu",
+    "owo",
+    "qwq",
+    "TwT",
+    "-w-",
+    "0w0",
+    "^w^",
+    "ùwú",
+    "úwù",
+    "òwó",
+    "ówò",
+]
 
 [profanity]
 bad_words = [

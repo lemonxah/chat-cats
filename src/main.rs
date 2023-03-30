@@ -25,6 +25,7 @@ pub struct Config {
     pub hug: commands::HugConfig,
     pub remind: commands::RemindConfig,
     pub time: commands::TimeConfig,
+    pub uwu: commands::UwuConfig,
     pub db: DBConfig,
 }
 
@@ -56,6 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_command(Box::new(HugCommand::new(config.hug)))
         .add_command(Box::new(RemindCommand::new(config.remind)))
         .add_command(Box::new(TimeCommand::new(config.time)))
+        .add_command(Box::new(UwuCommand::new(config.uwu)))
         .add_command(Box::new(StatsCommand::new(())));
     let discord = Arc::new(discord);
     info!("Ready.");
@@ -63,10 +65,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         match connection.recv_event() {
             Ok(Event::MessageCreate(message)) => {
                 info!("{} says: {}", message.author.name, message.content);
-                profanity_filter(&message, &config.profanity, discord.clone());
+                profanity_filter(
+                    message.id.clone(),
+                    message.author.id.clone(),
+                    message.content.clone(),
+                    message.channel_id.clone(),
+                    &config.profanity,
+                    discord.clone()
+                );
                 if let Err(e) = commands.handle(&message, discord.clone(), db.clone()).await {
                     error!("Error handling command: {} ::: {}", message.content, e);
                 };
+            }
+            Ok(Event::MessageUpdate { id, channel_id, content, author, ..}) => {
+                if author.is_none() || content.is_none() {
+                    continue;
+                }
+                let author = author.unwrap();
+                let content = content.unwrap();
+                info!("{} edited a message({}): {}", author.name, id.clone(), content);
+                profanity_filter(
+                    id,
+                    author.id,
+                    content,
+                    channel_id,
+                    &config.profanity,
+                    discord.clone()
+                );
             }
             Ok(_) => {}
             Err(discord::Error::Closed(code, body)) => {
