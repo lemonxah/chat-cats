@@ -10,8 +10,12 @@ discord = { git = "https://github.com/SpaceManiac/discord-rs" }
 tokio = { version = "1.25.0", features = ["full"] }
 tokio-stream = "0.1.12"
 async-trait = "0.1.64"
+chrono = "0.4.24"
+chrono-tz = "0.8.1"
 dotenv = "0.15.0"
 regex = "1.7.1"
+log = "0.4"
+env_logger = "0.10.0"
 toml = "0.7.2"
 serde = "1.0.152"
 serde_derive = "1.0.152"

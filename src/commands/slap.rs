@@ -3,7 +3,7 @@ use discord::{model::{Message, UserId, Channel, ChannelId}, Discord};
 use macros::ChatCommand;
 use rand::{seq::SliceRandom, rngs::ThreadRng};
 use serde::{Deserialize, Serialize};
-use std::result::Result;
+use std::{result::Result, sync::Arc};
 use regex::Regex;
 use strum::{EnumIter, IntoEnumIterator};
 use crate::{storage, cache::Cache};
@@ -100,7 +100,7 @@ impl From<&Message> for SubCommand {
 }
 
 impl SlapCommand {
-    pub async fn slap(&self, oponent: Oponent, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
+    pub async fn slap(&self, oponent: Oponent, message: &Message, discord: Arc<Discord>, db: Database) -> Result<Message, CommandError> {
         let response = {
             let mut rng: ThreadRng = rand::thread_rng();
             let action = self.config.actions.choose(&mut rng).unwrap();
@@ -117,7 +117,7 @@ impl SlapCommand {
         discord.send_message(message.channel_id, &response.replace("!!!", ""), "", false).map_err(|e| e.into())
     }
 
-    pub async fn random(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
+    pub async fn random(&self, message: &Message, discord: Arc<Discord>, db: Database) -> Result<Message, CommandError> {
         let messages = discord.get_messages(message.channel_id, discord::GetMessages::MostRecent, Some(30))?;
         let mut users: Vec<UserId> = messages.iter().filter(|m| m.author.bot == false).map(|m| m.author.id).collect();
         users.sort();
@@ -129,12 +129,12 @@ impl SlapCommand {
         self.slap(oponent, message, discord, db).await
     }
 
-    pub async fn help(&self, message: &Message, discord: &Discord) -> Result<Message, CommandError> {
+    pub async fn help(&self, message: &Message, discord: Arc<Discord>) -> Result<Message, CommandError> {
         let response = format!("Usage: slap <oponent>");
         discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
     }
 
-    pub async fn stats(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
+    pub async fn stats(&self, message: &Message, discord: Arc<Discord>, db: Database) -> Result<Message, CommandError> {
         // let stats = storage::slaps::stats(message.author.id.0 as i64, db).await?;
         let given = storage::slaps::given(message.author.id.0 as i64, db.clone()).await?;
         let received = storage::slaps::received(message.author.id.0 as i64, db).await?;
@@ -142,7 +142,7 @@ impl SlapCommand {
         discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
     }
 
-    async fn get_name(&self, id: i64, channel_id: ChannelId, discord: &Discord) -> Result<String, CommandError> {
+    async fn get_name(&self, id: i64, channel_id: ChannelId, discord: Arc<Discord>) -> Result<String, CommandError> {
         if let Some(name) = self.cache.get(id).await {
             return Ok(name);
         } else {
@@ -160,16 +160,16 @@ impl SlapCommand {
         }
     }
 
-    pub async fn leaderboard(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
+    pub async fn leaderboard(&self, message: &Message, discord: Arc<Discord>, db: Database) -> Result<Message, CommandError> {
         let slappers = storage::slaps::top3_slappers(db.clone()).await?;
         let slappees = storage::slaps::top3_slappees(db).await?;
         let mut slapper_names: Vec<(String, i32)> = vec![];
         for slapper in slappers.into_iter() {
-            slapper_names.push((self.get_name(slapper.author, message.channel_id, discord).await.unwrap_or(String::from("unknown")), slapper.count));
+            slapper_names.push((self.get_name(slapper.author, message.channel_id, discord.clone()).await.unwrap_or(String::from("unknown")), slapper.count));
         }
         let mut slappees_names: Vec<(String, i32)> = vec![];
         for slappee in slappees.into_iter() {
-            slappees_names.push((self.get_name(slappee.author, message.channel_id, discord).await.unwrap_or(String::from("unknown")), slappee.count));
+            slappees_names.push((self.get_name(slappee.author, message.channel_id, discord.clone()).await.unwrap_or(String::from("unknown")), slappee.count));
         }
         let response = format!("```Top 3 Slappers:\n\n{} \n\nTop 3 Slapped:\n\n{}\n\n```",
             slapper_names.iter().map(|s| format!("  {} with {} slaps", s.0, s.1)).collect::<Vec<String>>().join("\n"),
@@ -191,7 +191,7 @@ impl Responder for SlapCommand {
         }
     }
 
-    async fn respond(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
+    async fn respond(&self, message: &Message, discord: Arc<Discord>, db: Database) -> Result<Message, CommandError> {
         match SubCommand::from(message) {
             SubCommand::Slap(oponent) => self.slap(oponent, message, discord, db).await,
             SubCommand::Help => self.help(message, discord).await,

@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use discord::{model::Message, Discord};
 use macros::ChatCommand;
 use serde::Deserialize;
-use std::result::Result;
+use std::{result::Result, sync::Arc};
 use rand::seq::SliceRandom;
 use mongodb::Database;
 use super::{ChatCommand, CommandError, Responder, HelpCommands};
@@ -41,7 +41,7 @@ impl Responder for LoveCommand {
             config,
         }
     }
-    async fn respond(&self, message: &Message, discord: &Discord, _db: Database) -> Result<Message, CommandError> {
+    async fn respond(&self, message: &Message, discord: Arc<Discord>, _db: Database) -> Result<Message, CommandError> {
         let response = {
             let rng = &mut rand::thread_rng();
             format!("<@{}>, {}", message.author.id, self.config.responses.choose(rng).unwrap())

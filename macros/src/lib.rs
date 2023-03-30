@@ -15,8 +15,8 @@ pub fn derive_chat_command(input: TokenStream) -> TokenStream {
             fn matches(&self, message: &str) -> bool {
                 self.matches.iter().any(|m| message.starts_with(*m))
             }
-            async fn handle(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError> {
-                self.respond(message, discord, db).await
+            async fn handle(&self, message: &Message, discord: std::sync::Arc<Discord>, db: Database) -> Result<Message, CommandError> {
+                self.respond(message, discord.clone(), db).await
             }
         }
     };

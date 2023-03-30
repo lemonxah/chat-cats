@@ -2,13 +2,17 @@ mod love;
 mod slap;
 mod stats;
 mod hug;
+mod remind;
+mod time;
 pub use love::*;
 pub use slap::*;
 pub use stats::*;
 pub use hug::*;
+pub use remind::*;
+pub use time::*;
 
 use thiserror::Error;
-use std::result::Result;
+use std::{result::Result, sync::Arc};
 use async_trait::async_trait;
 use discord::{model::Message, Discord};
 use mongodb::Database;
@@ -24,6 +28,8 @@ pub enum CommandError {
     RegexError(#[from] regex::Error),
     #[error(transparent)]
     CastError(#[from] std::num::ParseIntError),
+    #[error(transparent)]
+    TimeError(#[from] chrono::ParseError),
 }
 
 pub trait HelpCommands {
@@ -34,14 +40,14 @@ pub trait HelpCommands {
 pub trait Responder {
     type Config;
     fn new(config: Self::Config) -> Self where Self: Sized;
-    async fn respond(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError>;
+    async fn respond(&self, message: &Message, discord: Arc<Discord>, db: Database) -> Result<Message, CommandError>;
 }
 
 #[async_trait]
 pub trait ChatCommand {
     fn help(&self) -> Vec<&'static str>;
     fn matches(&self, message: &str) -> bool;
-    async fn handle(&self, message: &Message, discord: &Discord, db: Database) -> Result<Message, CommandError>;
+    async fn handle(&self, message: &Message, discord: Arc<Discord>, db: Database) -> Result<Message, CommandError>;
 }
 
 pub struct Commands {
@@ -59,7 +65,7 @@ impl Commands {
         self
     }
 
-    pub async fn handle(&self, message: &Message, discord: &Discord, db: Database) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn handle(&self, message: &Message, discord: Arc<Discord>, db: Database) -> Result<(), Box<dyn std::error::Error>> {
         let re_string = format!("(?i)({})", self.names.join("|"));
         let is_command = Regex::new(&re_string).unwrap();
         if is_command.is_match(&message.content) {
@@ -77,7 +83,7 @@ impl Commands {
             }
             for command in &self.commands {
                 if command.matches(stripped.trim()) {
-                    command.handle(message, discord, db.clone()).await?;
+                    command.handle(message, discord.clone(), db.clone()).await?;
                 }
             }
         }
