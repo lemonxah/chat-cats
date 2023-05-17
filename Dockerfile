@@ -1,16 +1,11 @@
-FROM rust:1.69 AS builder
-COPY dummy.rs .
-COPY Cargo.toml .
-COPY macros macros
-RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
-RUN cargo build --release
-RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
-COPY src src
-RUN cargo build --release
+FROM rust AS builder
+COPY . .
+RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/target \
+    cargo build --release && mv /target/release/chat-cats /chat-cats
 
 FROM debian:bullseye-slim
 RUN apt update
 RUN apt install libssl-dev ca-certificates -y
 ENV RUST_LOG=info,chat-cats=trace
-COPY --from=builder ./target/release/chat-cats ./chat-cats
+COPY --from=builder chat-cats .
 CMD ["/chat-cats"]

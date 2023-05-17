@@ -23,15 +23,17 @@ stages:          # List of stages for jobs, and their order of execution
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
-    - docker build . -t chat-cats:$CI_COMMIT_SHA
-    - docker tag chat-cats:$CI_COMMIT_SHA registry.xahnet.net/chat-cats:latest
-    - docker tag chat-cats:$CI_COMMIT_SHA registry.xahnet.net/chat-cats:$CI_COMMIT_SHA
-    - docker push registry.xahnet.net/chat-cats:$CI_COMMIT_SHA
-    - docker push registry.xahnet.net/chat-cats:latest
+    - echo "Building application..."
+    - DOCKER_BUILDKIT=1 docker build . -t chat-cats:$CI_COMMIT_SHA
+    - echo "Application built..."
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
   script:
     - echo "Deploying application..."
+    - docker tag chat-cats:$CI_COMMIT_SHA registry.xahnet.net/chat-cats:latest
+    - docker tag chat-cats:$CI_COMMIT_SHA registry.xahnet.net/chat-cats:$CI_COMMIT_SHA
+    - docker push registry.xahnet.net/chat-cats:$CI_COMMIT_SHA
+    - docker push registry.xahnet.net/chat-cats:latest
     - echo "Application successfully deployed."
