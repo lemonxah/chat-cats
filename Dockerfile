@@ -1,5 +1,11 @@
 FROM rust:1.69 AS builder
-COPY . .
+COPY dummy.rs .
+COPY Cargo.toml .
+COPY macros .
+RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
+RUN cargo build --release
+RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
+COPY src src
 RUN cargo build --release
 
 FROM debian:bullseye-slim
