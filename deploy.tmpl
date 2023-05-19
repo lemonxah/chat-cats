@@ -19,7 +19,9 @@ spec:
         app: chat-cats-app
     spec:
       containers:
-      - env:
+      - name: chat-cats-pod      
+        image: registry.xahnet.net/chat-cats:$CI_COMMIT_SHA
+        env:
         -
           name: DISCORD_TOKEN
           valueFrom:
@@ -38,5 +40,4 @@ spec:
             secretKeyRef:
               name: discord
               key: APP_ID
-      - name: chat-cats-pod      
-        image: registry.xahnet.net/chat-cats:$CI_COMMIT_SHA
+
