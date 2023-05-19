@@ -19,13 +19,12 @@ deploy-job:
   before_script:  
     # create the configuration (context) for our kubernetes cluster
     - kubectl config set-cluster deploy-cluster --server="$K8S_SERVER" --insecure-skip-tls-verify
-    - echo $K8S_TOKEN > k8s_token
-    - cat k8s_token
-    - kubectl config set-credentials gitlab --token=$(cat k8s_token)
+    - kubectl config set-credentials gitlab --token=$K8S_TOKEN
     - kubectl config set-context deploy-cluster --cluster=deploy-cluster --namespace=default --user=gitlab
     - kubectl config use-context deploy-cluster
   script:
     - echo "Deploying application..."
     - envsubst < deploy.tmpl > deploy.yaml
+    - cat deploy.yaml
     - kubectl apply -f deploy.yaml
     - echo "Application successfully deployed."
