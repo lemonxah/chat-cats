@@ -4,6 +4,12 @@ stages:
 
 build-job:
   stage: build
+  # this job requires docker-in-docker
+  tags:
+    - dind
+  image: docker:19.03.12
+  services:
+    - docker:19.03.12-dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
