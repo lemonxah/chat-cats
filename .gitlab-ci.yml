@@ -15,7 +15,6 @@ build-job:       # This job runs in the build stage, which runs first.
 
 deploy-job:
   stage: deploy
-  image: cylab/kubectl:latest
   environment: production
   before_script:  
     # create the configuration (context) for our kubernetes cluster
