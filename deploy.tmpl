@@ -20,6 +20,6 @@ spec:
     spec:
       containers:
       - name: chat-cats-pod
-        image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+        image: registry.xahnet.net/chat-cats:$CI_COMMIT_SHA
       imagePullSecrets:
       - name: gitlab-token
