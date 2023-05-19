@@ -8,4 +8,5 @@ RUN apt update
 RUN apt install libssl-dev ca-certificates -y
 ENV RUST_LOG=info,chat-cats=trace
 COPY --from=builder chat-cats .
+COPY --from=builder config.toml .
 CMD ["/chat-cats"]

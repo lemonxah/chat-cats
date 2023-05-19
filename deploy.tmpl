@@ -19,7 +19,24 @@ spec:
         app: chat-cats-app
     spec:
       containers:
-      - name: chat-cats-pod
+      - env:
+        -
+          name: DISCORD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: discord
+              key: DISCORD_TOKEN
+        -
+          name: PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: discord
+              key: PUBLIC_KEY
+        -
+          name: APP_ID
+          valueFrom:
+            secretKeyRef:
+              name: discord
+              key: APP_ID
+      - name: chat-cats-pod      
         image: registry.xahnet.net/chat-cats:$CI_COMMIT_SHA
-      imagePullSecrets:
-      - name: gitlab-token
