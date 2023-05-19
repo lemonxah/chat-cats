@@ -42,6 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config: Config = toml::from_str(&config_str).expect("config.toml format broken");
     info!("Config loaded:\n{:?}\n", config);
     let token = env::var("DISCORD_TOKEN").expect("token expected");
+    info!("Logging in with DISCORD_TOKEN: {}", token);
     let discord = Discord::from_bot_token(&token).expect("login failed");
     info!("Login successful");
     let mut client_options = ClientOptions::parse(config.db.connection_string).await?;
