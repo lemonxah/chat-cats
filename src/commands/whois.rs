@@ -57,9 +57,13 @@ impl Responder for WhoIsCommand {
                     };
                     return discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
                 }
+            } else {
+                let response = {
+                    format!("sorry i do not know <@{}> ", user_str)
+                };
+                return discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
             }
-        }
-        if r_is.is_match(&message.content) {
+        } else if r_is.is_match(&message.content) {
             let caps = r_is.captures(message.content.as_str()).unwrap();
             let user_str = caps.name("user").unwrap().as_str();
             let message_str = caps.name("message").unwrap().as_str();
@@ -68,23 +72,22 @@ impl Responder for WhoIsCommand {
                 let userid_str = user_str.replace("<@", "").replace(">", "");
                 log::info!("userid_str: {}", userid_str);
                 let userid: i64 = userid_str.parse::<i64>().unwrap();
-                let is_message = whois::is(userid, message_str.to_owned(), db).await;
-                if is_message.is_ok() {
-                    let response = {
-                        format!("i now know <@{}> ", userid)
-                    };
-                    return discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
-                } else {
-                    let response = {
-                        format!("sorry i could not save <@{}> ", userid)
-                    };
-                    return discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
-                }
+                let _is_message = whois::is(userid, message_str.to_owned(), db).await;
+                let response = {
+                    format!("i now know <@{}>", userid)
+                };
+                return discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
+            } else {
+                let response = {
+                    format!("sorry i do not know <@{}> ", user_str)
+                };
+                return discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
             }
+        } else {
+            let response = {
+                format!("sorry i do not understand")
+            };
+            return discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
         }
-        let response = {
-            format!("Sorry i do not understand that command")
-        };
-        discord.send_message(message.channel_id, &response, "", false).map_err(|e| e.into())
     }
 }
