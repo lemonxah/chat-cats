@@ -32,6 +32,6 @@ pub async fn whois(target: i64, db: Database) -> Result<Whois, mongodb::error::E
     if let Ok(Some(x)) = cursor.try_next().await {
         Ok(x)
     } else {
-        Ok(Whois { target, message: String::from("No whois message set") })
+        Ok(Whois { target, message: String::from("not someone i know.") })
     }
 }
