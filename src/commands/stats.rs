@@ -3,6 +3,7 @@ use macros::ChatCommand;
 use std::{result::Result, sync::Arc};
 use discord::{model::Message, Discord};
 use mongodb::Database;
+use regex::Regex;
 use super::{ChatCommand, CommandError, Responder, HelpCommands};
 
 #[derive(ChatCommand)]

@@ -6,6 +6,7 @@ mod remind;
 mod time;
 mod uwu;
 mod definitions;
+mod whois;
 pub use love::*;
 pub use slap::*;
 pub use stats::*;
@@ -14,6 +15,7 @@ pub use remind::*;
 pub use time::*;
 pub use uwu::*;
 pub use definitions::*;
+pub use whois::*;
 
 use thiserror::Error;
 use std::{result::Result, sync::Arc};

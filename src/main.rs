@@ -60,6 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_command(Box::new(TimeCommand::new(config.time)))
         .add_command(Box::new(UwuCommand::new(config.uwu)))
         .add_command(Box::new(DefinitionsCommand::new(config.definitions)))
+        .add_command(Box::new(WhoIsCommand::new(())))
         .add_command(Box::new(StatsCommand::new(())));
     let discord = Arc::new(discord);
     info!("Ready.");

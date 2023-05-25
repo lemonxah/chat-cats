@@ -4,6 +4,7 @@ use macros::ChatCommand;
 use serde::Deserialize;
 use std::{result::Result, sync::Arc};
 use mongodb::Database;
+use regex::Regex;
 use super::{ChatCommand, CommandError, Responder, HelpCommands};
 
 
@@ -23,6 +24,7 @@ impl HelpCommands for DefinitionsCommand {
         vec![
             "   Definitions - Responds with a Definitions message",
             "       Example: cc definitions",
+            "       Alias: cc explain, cc abv"
         ]
     }
 }
@@ -33,7 +35,6 @@ impl Responder for DefinitionsCommand {
     fn new(config: Self::Config) -> DefinitionsCommand {
         DefinitionsCommand { 
             matches: vec![
-                "Definitions",
                 "definitions",
                 "abv",
                 "explain",

@@ -5,6 +5,7 @@ use serde::Deserialize;
 use std::{result::Result, sync::Arc};
 use rand::seq::SliceRandom;
 use mongodb::Database;
+use regex::Regex;
 use super::{ChatCommand, CommandError, Responder, HelpCommands};
 
 

@@ -13,7 +13,9 @@ pub fn derive_chat_command(input: TokenStream) -> TokenStream {
                 <#name as crate::commands::HelpCommands>::help()
             }
             fn matches(&self, message: &str) -> bool {
-                self.matches.iter().any(|m| message.starts_with(*m))
+                let regex = format!("(?i)^({})", self.matches.join("|"));
+                let re = Regex::new(&regex).unwrap();
+                re.is_match(message)
             }
             async fn handle(&self, message: &Message, discord: std::sync::Arc<Discord>, db: Database) -> Result<Message, CommandError> {
                 self.respond(message, discord.clone(), db).await
