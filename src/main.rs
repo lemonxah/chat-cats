@@ -64,6 +64,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_command(Box::new(StatsCommand::new(())));
     let discord = Arc::new(discord);
     info!("Ready.");
+    connection.set_game_name("lurking in the chat".to_owned());
     loop {
         match connection.recv_event() {
             Ok(Event::MessageCreate(message)) => {
