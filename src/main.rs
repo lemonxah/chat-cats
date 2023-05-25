@@ -27,6 +27,7 @@ pub struct Config {
     pub time: commands::TimeConfig,
     pub uwu: commands::UwuConfig,
     pub db: DBConfig,
+    pub definitions: commands::DefinitionsConfig,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -58,6 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_command(Box::new(RemindCommand::new(config.remind)))
         .add_command(Box::new(TimeCommand::new(config.time)))
         .add_command(Box::new(UwuCommand::new(config.uwu)))
+        .add_command(Box::new(DefinitionsCommand::new(config.definitions)))
         .add_command(Box::new(StatsCommand::new(())));
     let discord = Arc::new(discord);
     info!("Ready.");

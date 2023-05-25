@@ -44,6 +44,15 @@ replacements = [
     "<:Foxscared:842665201160683520>",
 ]
 
+[definitions]
+response = [
+    "Definitions and Abreviations in this Channel",
+    "pot - Path of Titans",
+    "bob - Beasts of Bremuda",
+    "dod - Day of Dragons",
+    "tce - The Cenozoic Era",
+]
+
 [hug]
 responses = [
     "a heartfelt hug",

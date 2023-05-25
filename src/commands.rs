@@ -5,6 +5,7 @@ mod hug;
 mod remind;
 mod time;
 mod uwu;
+mod definitions;
 pub use love::*;
 pub use slap::*;
 pub use stats::*;
@@ -12,6 +13,7 @@ pub use hug::*;
 pub use remind::*;
 pub use time::*;
 pub use uwu::*;
+pub use definitions::*;
 
 use thiserror::Error;
 use std::{result::Result, sync::Arc};
