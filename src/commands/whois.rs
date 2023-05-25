@@ -41,8 +41,10 @@ impl Responder for WhoIsCommand {
             let caps = r_who_is.captures(message.content.as_str()).unwrap();
             let user_str = caps.name("user").unwrap().as_str();
             let target_regex = Regex::new("<@(\\d+?)>").unwrap();
-            if let Some(_target_match) = target_regex.find(user_str) {
-                let userid: i64 = user_str.replace("<@", "").replace(">","").parse::<i64>().unwrap();
+            if let Some(target_match) = target_regex.find(user_str) {
+                let userid_str = user_str[target_match.start()..target_match.end()].to_string();
+                log::info!("userid_str: {}", userid_str);
+                let userid: i64 = userid_str.parse::<i64>().unwrap();
                 let is_message = whois::whois(userid, db).await;
                 if is_message.is_ok() {
                     let response = {
