@@ -16,7 +16,7 @@ impl HelpCommands for WhoIsCommand {
     fn help() -> Vec<&'static str> {
         vec![
             "   who is @target - Responds with saved message for target",
-            "       Example: cc WhoIs @chat-cats",
+            "       Example: cc who is @chat-cats",
             "   @target is <message> - Saves message for target",
             "       Example: cc @chat-cats is a cool bot",
         ]
