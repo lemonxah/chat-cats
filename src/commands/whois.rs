@@ -36,7 +36,7 @@ impl Responder for WhoIsCommand {
     }
     async fn respond(&self, message: &Message, discord: Arc<Discord>, db: Database) -> Result<Message, CommandError> {
         let r_who_is = Regex::new(r"cc who is (?P<user>.+?)$").unwrap();
-        let r_is = Regex::new(r"cc (?P<user>.+?) is (?P<message>.+?)").unwrap();
+        let r_is = Regex::new(r"cc (?P<user>.+?) is (?P<message>.+)").unwrap();
         if r_who_is.is_match(&message.content) {
             let caps = r_who_is.captures(message.content.as_str()).unwrap();
             let user_str = caps.name("user").unwrap().as_str();
