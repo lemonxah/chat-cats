@@ -12,7 +12,7 @@ pub struct Whois {
 
 pub async fn is(target: i64, message: String, db: Database) -> Result<Whois, mongodb::error::Error> {
     let filter = doc! { "target": target };
-    let update = doc! { "message": message };
+    let update = doc! { "$set" : {"message": message }};
     let options = FindOneAndUpdateOptions::builder()
         .upsert(true)
         .return_document(ReturnDocument::After)
