@@ -68,14 +68,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         match connection.recv_event() {
             Ok(Event::MessageCreate(message)) => {
                 info!("{} says: {}", message.author.name, message.content);
-                profanity_filter(
-                    message.id.clone(),
-                    message.author.id.clone(),
-                    message.content.clone(),
-                    message.channel_id.clone(),
-                    &config.profanity,
-                    discord.clone()
-                );
+                // profanity_filter(
+                //     message.id.clone(),
+                //     message.author.id.clone(),
+                //     message.content.clone(),
+                //     message.channel_id.clone(),
+                //     &config.profanity,
+                //     discord.clone()
+                // );
                 if let Err(e) = commands.handle(&message, discord.clone(), db.clone()).await {
                     error!("Error handling command: {} ::: {}", message.content, e);
                 };
